@@ -50,6 +50,10 @@ app.get('/hello', (req, res) => {
     res.json({name: "John Do", email: "john.doe@example.com"});
 });
 
+app.get('/api/users', (req, res) => {
+    res.json({name: "John Do", email: " "   });
+});
+
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
