@@ -3,7 +3,7 @@ name: Deploy Backend to EC2
 on:
   push:
     branches:
-      - master   # change to main if your branch is main
+      - master
 
 jobs:
   deploy:
@@ -24,20 +24,18 @@ jobs:
           -o StrictHostKeyChecking=no \
           ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
 
-            cd /var/www/backend-app
+            cd /var/www/backend-app/implement_ci_cd_test
 
-            if [ ! -d "implement_ci_cd_test" ]; then
-              git clone https://github.com/indramani-1mishra/implement_ci_cd_test.git
-            fi
-
-            cd implement_ci_cd_test
-
+            echo "Pulling latest code..."
             git pull origin master
 
+            echo "Installing dependencies..."
             npm install
 
-            pm2 restart backend-app || pm2 start src/server.js --name backend-app
+            echo "Restarting PM2..."
+            pm2 restart backend-app
 
+            echo "Saving PM2 process list..."
             pm2 save
 
           EOF
