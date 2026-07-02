@@ -39,10 +39,14 @@ io.on('connection', (socket) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('<h1 style="text-align: center;">server is running</h1>');
+    res.send('<h1 style="text-align: center;">Backend Server deployed using GitHub Actions ci/cd</h1>');
 });
 
 app.get('/users', (req, res) => {
+    res.json({name: "John Do", email: "john.doe@example.com"});
+});
+
+app.get('/hello', (req, res) => {
     res.json({name: "John Do", email: "john.doe@example.com"});
 });
 
