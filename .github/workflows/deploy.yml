@@ -15,25 +15,39 @@ jobs:
 
       - name: Setup SSH Key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy to EC2
         run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -i ~/.ssh/deploy_key.pem \
+            -o ConnectTimeout=10 \
+            -o StrictHostKeyChecking=accept-new \
+            ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOFSH'
+          
+          cd /var/www/backend-app/implement_ci_cd_test || exit 1
+          
+          echo "Pulling latest code..."
+          git pull origin master
+          
+          echo "Installing dependencies..."
+          npm install
+          
+          echo "Restarting PM2..."
+          pm2 restart backend-app
+          
+          echo "Saving PM2 process list..."
+          pm2 save
+          
+          echo "Deployment completed successfully!"
+          EOFSH
 
-            cd /var/www/backend-app/implement_ci_cd_test
+      - name: Deployment Summary
+        if: success()
+        run: echo "✅ Deployment to EC2 successful!"
 
-            echo "Pulling latest code..."
-            git pull origin master
-
-            echo "Installing dependencies..."
-            npm install
-
-            echo "Restarting PM2..."
-            pm2 restart backend-app
-
-            echo "Saving PM2 process list..."
-            pm2 save
-
-          EOF
+      - name: Deployment Failed
+        if: failure()
+        run: echo "❌ Deployment failed! Check logs above."
