@@ -45,9 +45,6 @@ app.get('/', (req, res) => {
 app.get('/users', (req, res) => {
     res.json({name: "John Doe", email: "john.doe@example.com"});
 });
-app.get('/users', (req, res) => {
-    res.json({name: "John Doe", email: "john.doe@example.com"});
-});
 
 const port = process.env.PORT || 3000;
 
