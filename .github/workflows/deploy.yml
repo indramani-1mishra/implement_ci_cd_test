@@ -1,0 +1,43 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - master   # change to main if your branch is main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Deploy to EC2
+        run: |
+          ssh -i private_key.pem \
+          -o StrictHostKeyChecking=no \
+          ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+
+            cd /var/www/backend-app
+
+            if [ ! -d "implement_ci_cd_test" ]; then
+              git clone https://github.com/indramani-1mishra/implement_ci_cd_test.git
+            fi
+
+            cd implement_ci_cd_test
+
+            git pull origin master
+
+            npm install
+
+            pm2 restart backend-app || pm2 start src/server.js --name backend-app
+
+            pm2 save
+
+          EOF

@@ -42,6 +42,10 @@ app.get('/', (req, res) => {
     res.send('<h1 style="text-align: center;">server is running</h1>');
 });
 
+app.get('/users', (req, res) => {
+    res.json({name: "John Doe", email: "john.doe@example.com"});
+});
+
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
