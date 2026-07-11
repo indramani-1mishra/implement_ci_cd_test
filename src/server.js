@@ -1,6 +1,8 @@
 const express = require('express');
 const { Server } = require('socket.io'); // Use this explicit import
 const http = require('http');
+const stun = require('stun');
+
 
 
 const app = express();
@@ -9,7 +11,7 @@ const server = http.createServer(app);
 // Configure CORS to allow your React app to connect
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // Replace with your React app's URL
+    origin: '*', // Replace with your React app's URL
     methods: ["GET", "POST"]
   }
 });
@@ -23,8 +25,26 @@ io.on('connection', (socket) => {
       
         socket.join(userid);
      console.log("User joined with ID:", userid);
+     io.emit("getallusers", users);
     })
     console.log("Current users:", users);
+
+    socket.on("offer",(data)=>{
+    const {senderId,receiverId,offer} =data;
+    io.to(receiverId).emit("offer",{senderId,receiverId,offer});
+    console.log(senderId,receiverId,offer);
+    })
+
+    socket.on("answer",(data)=>{
+      const {senderId,receiverId,answer} = data;
+        io.to(receiverId).emit("answer",data);
+      console.log(data);
+      console.log("data");
+    })
+
+    socket.on("ice-candidate",(data)=>{
+      io.to(data.receiverId).emit("ice-candidate",data);
+    })
 
     socket.on("disconnect", () => {
         // Remove the user from the users object when they disconnect
@@ -38,21 +58,20 @@ io.on('connection', (socket) => {
     });
 });
 
-app.get('/', (req, res) => {
-    res.send('<h1 style="text-align: center;">Backend Server deployed using GitHub Actions ci/cd</h1>');
-});
 
-app.get('/users', (req, res) => {
-    res.json({name: "John Do", email: "john.doe@example.com"});
-});
 
-app.get('/hello', (req, res) => {
-    res.json({name: "John Do", email: "john.doe@example.com"});
-});
+const getOurPublicIpAndPort = async (req, res) => {
+  try{
+    const  result = await stun.request('stun.l.google.com:19302');
+    const { address, port } = result.getXorAddress();
+    res.json({ address, port });
+  }catch(err){
+    console.error("Error getting public IP and port:", err);
+    res.status(500).json({ error: "Failed to get public IP and port" });
+  }
+}
 
-app.get('/api/users', (req, res) => {
-    res.json({name: "John Do", email: " "   });
-});
+app.get('/findMyIP', getOurPublicIpAndPort);
 
 const port = process.env.PORT || 3000;
 
