@@ -46,6 +46,11 @@ io.on('connection', (socket) => {
       io.to(data.receiverId).emit("ice-candidate",data);
     })
 
+    socket.on("end-call", (data) => {
+      const { receiverId } = data;
+      io.to(receiverId).emit("end-call", data);
+    })
+
     socket.on("disconnect", () => {
         // Remove the user from the users object when they disconnect
         for (const [userid, socketId] of Object.entries(users)) {
@@ -55,6 +60,7 @@ io.on('connection', (socket) => {
             }
         }
         console.log("User disconnected...");
+        io.emit("getallusers", users);
     });
 });
 
