@@ -77,6 +77,7 @@ const getOurPublicIpAndPort = async (req, res) => {
   }
 }
 
+app.set("trust proxy",true);
 const sayhello =async(req,res)=>{
   console.log(req.ip);  
   return res.json({reqip:req.ip})
