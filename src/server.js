@@ -2,7 +2,7 @@ const express = require('express');
 const { Server } = require('socket.io'); // Use this explicit import
 const http = require('http');
 const stun = require('stun');
-
+require("dotenv").config();
 
 
 const app = express();
@@ -77,12 +77,20 @@ const getOurPublicIpAndPort = async (req, res) => {
   }
 }
 
+const sayhello =async(req,res)=>{
+  console.log(req.ip);  
+  return res.json({reqip:req.ip})
+}
+
+app.get('/hello',sayhello);
+
+
 app.get('/findMyIP', getOurPublicIpAndPort);
 
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port http://localhost:${port}`);
 }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
         const fallbackPort = port + 1;
