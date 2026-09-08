@@ -2,11 +2,18 @@ const {
     PutObjectCommand
 } = require("@aws-sdk/client-s3");
 
-const s3 = require("./upload").s3;
+const s3 = require("./uploadphoto").s3;
 
 const uploadImage = async (req, res) => {
     try {
         const file = req.file;
+
+        if (!file) {
+            return res.status(400).json({
+                message: "Upload failed",
+                error: "A file is required in the 'image' field"
+            });
+        }
 
         const key = `images/${Date.now()}-${file.originalname}`;
 
@@ -29,7 +36,8 @@ const uploadImage = async (req, res) => {
 
         res.status(500).json({
             message: "Upload failed",
-            error: error,
+            error: error.message || "Unable to upload the file",
+            ...(error.name && { code: error.name })
         });
     }
 };
