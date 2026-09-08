@@ -87,7 +87,10 @@ app.get('/hello',sayhello);
 
 
 app.get('/findMyIP', getOurPublicIpAndPort);
-
+app.get('/newurlchecking/', (req, res) => {
+    res.send('Hello World!'); 
+}
+);
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
