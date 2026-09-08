@@ -3,7 +3,8 @@ const { Server } = require('socket.io'); // Use this explicit import
 const http = require('http');
 const stun = require('stun');
 require("dotenv").config();
-
+const { uploadImage } = require('./upload');
+const { upload } = require('./uploadphoto');
 
 const app = express();
 const server = http.createServer(app);
@@ -66,6 +67,8 @@ io.on('connection', (socket) => {
 
 
 
+
+
 const getOurPublicIpAndPort = async (req, res) => {
   try{
     const  result = await stun.request('stun.l.google.com:19302');
@@ -77,6 +80,7 @@ const getOurPublicIpAndPort = async (req, res) => {
   }
 }
 
+
 app.set("trust proxy",true);
 const sayhello =async(req,res)=>{
   console.log(req.ip);  
@@ -84,7 +88,7 @@ const sayhello =async(req,res)=>{
 }
 
 app.get('/hello',sayhello);
-
+app.post('/upload',upload.single('image'), uploadImage);
 
 app.get('/findMyIP', getOurPublicIpAndPort);
 app.get('/newurlchecking/', (req, res) => {
