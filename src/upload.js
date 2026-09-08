@@ -28,7 +28,8 @@ const uploadImage = async (req, res) => {
         console.error(error);
 
         res.status(500).json({
-            message: "Upload failed"
+            message: "Upload failed",
+            error: error,
         });
     }
 };
