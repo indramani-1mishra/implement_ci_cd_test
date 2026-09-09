@@ -15,7 +15,7 @@ const uploadImage = async (req, res) => {
             });
         }
 
-        const key = `images/${Date.now()}-${file.originalname}`;
+        const key = `testing/${Date.now()}-${file.originalname}`;
 
         await s3.send(
             new PutObjectCommand({
