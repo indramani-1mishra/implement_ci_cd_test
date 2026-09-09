@@ -97,6 +97,25 @@ app.get('/newurlchecking/', (req, res) => {
 );
 const port = process.env.PORT || 3000;
 
+
+const getalltheimages = async (req, res) => {
+  const s3 = require("./uploadphoto").s3;
+  const { ListObjectsV2Command } = require("@aws-sdk/client-s3");
+  try {
+    const data = await s3.send(new ListObjectsV2Command({
+      Bucket: process.env.AWS_S3_BUCKET || "safehand-service-image",
+      prefix: "images/" // Optional: Specify a prefix to filter objects
+    }));
+    console.log("S3 Objects:", data);
+    res.json(data);
+  } catch (error) {
+    console.error("Error listing S3 objects:", error);
+    res.status(500).json({ error: "Failed to list S3 objects" });
+  }
+};
+
+app.get('/getallimages', getalltheimages);
+
 server.listen(port, () => {
     console.log(`Server is running on port http://localhost:${port}`);
 }).on('error', (err) => {
