@@ -28,7 +28,8 @@ const uploadImage = async (req, res) => {
 
         res.json({
             message: "Image uploaded successfully",
-            key
+            key,
+            imageUrl: `https://${process.env.AWS_S3_BUCKET||"safehand-service-image"}.s3.${process.env.AWS_REGION||"eu-north-1"}.amazonaws.com/${key}`
         });
 
     } catch (error) {
