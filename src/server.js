@@ -3,8 +3,8 @@ const { Server } = require('socket.io'); // Use this explicit import
 const http = require('http');
 const stun = require('stun');
 require("dotenv").config();
-const { uploadImage } = require('./upload');
-const { upload } = require('./uploadphoto');
+const { uploadImage } = require('./upload.ts');
+const { upload } = require('./uploadphoto.ts');
 
 const app = express();
 const server = http.createServer(app);
@@ -96,10 +96,11 @@ app.get('/newurlchecking/', (req, res) => {
 }
 );
 const port = process.env.PORT || 3000;
+const mode = process.env.mode || "production";
 
 
 const getalltheimages = async (req, res) => {
-  const s3 = require("./uploadphoto").s3;
+  const s3 = require("./uploadphoto.ts").s3;
   const { ListObjectsV2Command } = require("@aws-sdk/client-s3");
   try {
     const data = await s3.send(new ListObjectsV2Command({
@@ -118,6 +119,7 @@ app.get('/getallimages', getalltheimages);
 
 server.listen(port, () => {
     console.log(`Server is running on port http://localhost:${port}`);
+    console.log(`Server is running in ${mode} mode`);
 }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
         const fallbackPort = port + 1;

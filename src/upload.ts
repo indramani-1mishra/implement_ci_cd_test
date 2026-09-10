@@ -1,10 +1,8 @@
-const {
-    PutObjectCommand
-} = require("@aws-sdk/client-s3");
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
 
-const s3 = require("./uploadphoto").s3;
+const s3 = require("./uploadphoto.ts").s3;
 
-const uploadImage = async (req, res) => {
+const uploadImage = async (req: any, res: any) => {
     try {
         const file = req.file;
 
@@ -17,14 +15,12 @@ const uploadImage = async (req, res) => {
 
         const key = `testing/${Date.now()}-${file.originalname}`;
 
-        await s3.send(
-            new PutObjectCommand({
-                Bucket: process.env.AWS_S3_BUCKET||"safehand-service-image",
-                Key: key,
-                Body: file.buffer,
-                ContentType: file.mimetype
-            })
-        );
+        await s3.send(new PutObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET || "safehand-service-image",
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype
+        }));
 
         res.json({
             message: "Image uploaded successfully",
@@ -32,7 +28,7 @@ const uploadImage = async (req, res) => {
             imageUrl: `https://${process.env.AWS_S3_BUCKET||"safehand-service-image"}.s3.${process.env.AWS_REGION||"eu-north-1"}.amazonaws.com/${key}`
         });
 
-    } catch (error) {
+    } catch (error:any) {
         console.error(error);
 
         res.status(500).json({
